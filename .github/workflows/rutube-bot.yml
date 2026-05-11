@@ -21,23 +21,26 @@ jobs:
       
       - name: Install Chrome and ChromeDriver
         run: |
-          # Устанавливаем Chrome
           sudo apt-get update
           sudo apt-get install -y wget unzip
+          
+          # Устанавливаем Chrome
           wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
           sudo dpkg -i google-chrome-stable_current_amd64.deb || sudo apt-get -f install -y
           
-          # Получаем версию Chrome
-          CHROME_VERSION=$(google-chrome --version | grep -oE '[0-9]+' | head -1)
-          echo "Chrome version: $CHROME_VERSION"
+          # Получаем точную версию Chrome
+          CHROME_VER=$(google-chrome --version | grep -oP '\d+(?=\.\d+\.\d+\.\d+)')
+          echo "Chrome major version: $CHROME_VER"
           
-          # Скачиваем совместимый ChromeDriver
-          wget -q "https://storage.googleapis.com/chrome-for-testing-public/latest/linux64/chromedriver-linux64.zip"
+          # Скачиваем ChromeDriver через официальный API
+          wget -q "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${CHROME_VER}.0.7778.96/linux64/chromedriver-linux64.zip" || \
+          wget -q "https://storage.googleapis.com/chrome-for-testing-public/${CHROME_VER}.0.7778.96/linux64/chromedriver-linux64.zip"
+          
           unzip -o chromedriver-linux64.zip
           sudo mv chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
           sudo chmod +x /usr/local/bin/chromedriver
           
-          # Проверяем версии
+          echo "=== ВЕРСИИ ==="
           google-chrome --version
           chromedriver --version
       
