@@ -2,8 +2,8 @@ name: Run Rutube Bot
 
 on:
   schedule:
-    - cron: '0 */6 * * *'   # Каждые 6 часов
-  workflow_dispatch:         # Для ручного запуска
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
 
 jobs:
   rutube-bot:
@@ -19,13 +19,27 @@ jobs:
         with:
           python-version: '3.10'
       
-      - name: Install Chrome
+      - name: Install Chrome and ChromeDriver
         run: |
+          # Устанавливаем Chrome
           sudo apt-get update
-          sudo apt-get install -y wget
+          sudo apt-get install -y wget unzip
           wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
           sudo dpkg -i google-chrome-stable_current_amd64.deb || sudo apt-get -f install -y
+          
+          # Получаем версию Chrome
+          CHROME_VERSION=$(google-chrome --version | grep -oE '[0-9]+' | head -1)
+          echo "Chrome version: $CHROME_VERSION"
+          
+          # Скачиваем совместимый ChromeDriver
+          wget -q "https://storage.googleapis.com/chrome-for-testing-public/latest/linux64/chromedriver-linux64.zip"
+          unzip -o chromedriver-linux64.zip
+          sudo mv chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
+          sudo chmod +x /usr/local/bin/chromedriver
+          
+          # Проверяем версии
           google-chrome --version
+          chromedriver --version
       
       - name: Install dependencies
         run: |
