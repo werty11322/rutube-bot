@@ -1,8 +1,10 @@
 import requests
 import re
+import random
+import time
 
-print("🚀 СБОР ПРОКСИ (без проверки)", flush=True)
-print("=" * 50, flush=True)
+print("🚀 СБОР И ПРОВЕРКА ПРОКСИ", flush=True)
+print("=" * 60, flush=True)
 
 all_proxies = []
 
@@ -33,19 +35,38 @@ except Exception as e:
 
 # Убираем дубликаты
 all_proxies = list(set(all_proxies))
+print(f"\n📊 ВСЕГО УНИКАЛЬНЫХ ПРОКСИ: {len(all_proxies)}", flush=True)
 
-print("=" * 50, flush=True)
-print(f"📊 ВСЕГО УНИКАЛЬНЫХ ПРОКСИ: {len(all_proxies)}", flush=True)
-print("=" * 50, flush=True)
-print("\nПервые 20 прокси для примера:", flush=True)
-for p in all_proxies[:20]:
-    print(f"  {p}", flush=True)
-    # Проверка одного случайного прокси
-if all_proxies:
-    test_proxy = all_proxies[0]
-    print(f"\n🧪 Проверка прокси {test_proxy}:", flush=True)
+# Выбираем 100 случайных прокси для проверки
+sample = random.sample(all_proxies, min(100, len(all_proxies)))
+print(f"🔍 Проверяем {len(sample)} случайных прокси на доступ к Rutube...", flush=True)
+print("=" * 60, flush=True)
+
+working = []
+for i, proxy in enumerate(sample, 1):
     try:
-        r = requests.get("https://rutube.ru", proxies={"http": f"http://{test_proxy}", "https": f"http://{test_proxy}"}, timeout=10)
-        print(f"  Статус: {r.status_code}", flush=True)
+        r = requests.get(
+            "https://rutube.ru",
+            proxies={"http": f"http://{proxy}", "https": f"http://{proxy}"},
+            timeout=10
+        )
+        if r.status_code == 200:
+            print(f"  ✅ [{i}/{len(sample)}] {proxy} → {r.status_code}", flush=True)
+            working.append(proxy)
+        else:
+            print(f"  ❌ [{i}/{len(sample)}] {proxy} → {r.status_code}", flush=True)
+    except Exception as e:
+        print(f"  ⚠️ [{i}/{len(sample)}] {proxy} → Ошибка", flush=True)
+    time.sleep(0.5)
+
+print("=" * 60, flush=True)
+print(f"📊 РЕЗУЛЬТАТ: {len(working)}/{len(sample)} прокси работают", flush=True)
+
+if working:
+    print("\n✅ РАБОЧИЕ ПРОКСИ (можно использовать):", flush=True)
+    for p in working[:10]:
+        print(f"  http://{p}", flush=True)
+else:
+    print("\n❌ Нет рабочих прокси. Rutube блокирует бесплатные прокси.", flush=True)
     except Exception as e:
         print(f"  Ошибка: {str(e)[:50]}", flush=True)
