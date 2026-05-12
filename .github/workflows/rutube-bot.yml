@@ -1,4 +1,4 @@
-name: Run Rutube Bot
+name: Run proxy test
 
 on:
   schedule:
@@ -20,7 +20,7 @@ jobs:
           python-version: '3.10'
       
       - name: Install Chrome and ChromeDriver
-        run: |
+        run: |python test_proxies.py
           sudo apt-get update
           sudo apt-get install -y wget unzip
           
