@@ -37,6 +37,10 @@ except Exception as e:
 all_proxies = list(set(all_proxies))
 print(f"\n📊 ВСЕГО УНИКАЛЬНЫХ ПРОКСИ: {len(all_proxies)}", flush=True)
 
+if len(all_proxies) == 0:
+    print("❌ Нет прокси для проверки", flush=True)
+    exit(0)
+
 # Выбираем 100 случайных прокси для проверки
 sample = random.sample(all_proxies, min(100, len(all_proxies)))
 print(f"🔍 Проверяем {len(sample)} случайных прокси на доступ к Rutube...", flush=True)
@@ -63,10 +67,8 @@ print("=" * 60, flush=True)
 print(f"📊 РЕЗУЛЬТАТ: {len(working)}/{len(sample)} прокси работают", flush=True)
 
 if working:
-    print("\n✅ РАБОЧИЕ ПРОКСИ (можно использовать):", flush=True)
+    print("\n✅ РАБОЧИЕ ПРОКСИ (можно использовать в боте):", flush=True)
     for p in working[:10]:
         print(f"  http://{p}", flush=True)
 else:
-    print("\n❌ Нет рабочих прокси. Rutube блокирует бесплатные прокси.", flush=True)
-    except Exception as e:
-        print(f"  Ошибка: {str(e)[:50]}", flush=True)
+    print("\n❌ Нет рабочих прокси. Бесплатные прокси не подходят для Rutube.", flush=True)
