@@ -1,12 +1,11 @@
-name: Run proxy test
+name: Run proxy parser
 
 on:
   workflow_dispatch:
 
 jobs:
-  test-proxies:
+  parse-proxies:
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,8 +17,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          pip install requests
+          pip install requests beautifulsoup4
       
-      - name: Run proxy test
-        run: |
-          python test_proxies.py
+      - name: Run parser
+        run: python proxy_parser.py
