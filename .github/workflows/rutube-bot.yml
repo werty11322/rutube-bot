@@ -14,7 +14,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y tmate
           
-      - name: Start SSH
+      - name: Start SSH 
         run: |
           echo "=== ПОДКЛЮЧАЙСЯ ПО SSH ==="
           tmate -S /tmp/tmate.sock new-session -d
