@@ -13,11 +13,11 @@ jobs:
           import time
           import random
 
-          VIDEO_ID = "cf89b1de7a3db4d79069629e96116ebb"
+          VIDEO_ID = "d628b4180db2b4bb94dd609873f92ce8"
           # URL эндпоинта, который вы нашли
           BASE_URL = f"https://goya.rutube.ru/v2/online/{VIDEO_ID}/"
 
-          for i in range(3):
+          for i in range(5):
               # Генерируем уникальные ID для сессии (как в вашем примере)
               cid = str(random.randint(10**12, 10**13-1))
               session_id = f"{cid}_{int(time.time()*1000)}"
