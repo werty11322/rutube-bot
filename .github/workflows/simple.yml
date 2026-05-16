@@ -1,8 +1,39 @@
 name: Simple
 on: workflow_dispatch
+
 jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - run: python3 -c "import requests, time, random; VIDEO_ID='cf89b1de7a3db4d79069629e96116ebb'; [print(f'{i+1}/20: {requests.get(\"https://goya.rutube.ru/v2/online\", params={\"event_name\":\"play_start\",\"cid\":str(random.randint(10**12,10**13-1)),\"content_id\":VIDEO_ID})
-         .status_code}') or time.sleep(30) for i in range(20)]"
+      # Шаг 1: Установка библиотеки requests (без неё скрипт упадет)
+      - name: Install dependencies
+        run: |
+          python3 -m pip install requests
+
+      # Шаг 2: Запуск вашего Python скрипта
+      - name: Run Python script
+        run: |
+          python3 << 'EOF'
+          import requests
+          import time
+          import random
+
+          VIDEO_ID = "cf89b1de7a3db4d79069629e96116ebb"
+
+          for i in range(20):
+              cid = str(random.randint(10**12, 10**13-1))
+              params = {
+                  "event_name": "play_start",
+                  "cid": cid,
+                  "content_id": VIDEO_ID,
+              }
+              try:
+                  r = requests.get("https://goya.rutube.ru/v2/online", params=params, timeout=10)
+                  print(f"{i+1}/20: {r.status_code}")
+              except Exception as e:
+                  print(f"{i+1}/20: Ошибка - {e}")
+              
+              time.sleep(30)
+
+          print("Готово!")
+          EOF
