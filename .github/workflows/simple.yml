@@ -16,52 +16,64 @@ jobs:
           VIDEO_ID = "6cfdb12ee510423801689f51ff73e8a3"
           BASE_URL = f"https://goya.rutube.ru/v2/online/{VIDEO_ID}/"
 
+          # Реальные заголовки из браузера
+          headers = {
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/146.0.0.0 Safari/537.36",
+              "Referer": f"https://rutube.ru/video/{VIDEO_ID}/",
+              "Origin": "https://rutube.ru",
+              "Content-Type": "application/json",
+              "Accept": "application/json, text/plain, */*",
+          }
+
           for i in range(3):
               cid = str(random.randint(10**12, 10**13-1))
               session_id = f"{cid}_{int(time.time()*1000)}"
               user_id = random.randint(10000000, 99999999)
               player_view_id = random.randint(1000000000, 9999999999)
-              start_time = int(time.time()*1000)
-
+              
               # 1. play_start
               params_start = {
                   "event_name": "play_start",
-                  "cid": cid,
-                  "session_id": session_id,
-                  "user_id": user_id,
-                  "event_timestamp": start_time,
-                  "page_url": f"https://rutube.ru/video/{VIDEO_ID}/",
-              }
-              requests.post(BASE_URL, params=params_start, timeout=10)
-              
-              # 2. Несколько heartbeat
-              for step in range(6):  # 6 пульсов = ~3 минуты
-                  time.sleep(30)
-                  params_heart = {
-                      "event_name": "heartbeat",
-                      "cid": cid,
-                      "session_id": session_id,
-                      "user_id": user_id,
-                      "event_timestamp": int(time.time()*1000),
-                      "range_start": step * 30000,
-                      "range_end": (step + 1) * 30000,
-                      "video_watchtime": (step + 1) * 30,
-                  }
-                  requests.post(BASE_URL, params=params_heart, timeout=10)
-                  print(f"{i+1}/20: пульс {step+1}/6")
-
-              # 3. play_end
-              params_end = {
-                  "event_name": "play_end",
+                  "event_action": "PL",
                   "cid": cid,
                   "session_id": session_id,
                   "user_id": user_id,
                   "event_timestamp": int(time.time()*1000),
-                  "range_end": 180000,
+                  "page_url": f"https://rutube.ru/video/{VIDEO_ID}/",
+                  "player_view_id": player_view_id,
+                  "content_id": VIDEO_ID,
+              }
+              r = requests.post(BASE_URL, params=params_start, headers=headers, timeout=10)
+              print(f"{i+1}/20: play_start → {r.status_code}")
+
+              # 2. heartbeat (каждые 10 секунд, 6 раз)
+              for step in range(6):
+                  time.sleep(10)
+                  params_heart = {
+                      "event_name": "heartbeat",
+                      "event_action": "PL",
+                      "cid": cid,
+                      "session_id": session_id,
+                      "user_id": user_id,
+                      "range_start": step * 10000,
+                      "range_end": (step + 1) * 10000,
+                      "video_watchtime": (step + 1) * 10,
+                  }
+                  r = requests.post(BASE_URL, params=params_heart, headers=headers, timeout=10)
+                  print(f"  {i+1}/20: heartbeat {step+1}/6 → {r.status_code}")
+
+              # 3. play_end
+              params_end = {
+                  "event_name": "play_end",
+                  "event_action": "PL",
+                  "cid": cid,
+                  "session_id": session_id,
+                  "user_id": user_id,
+                  "range_end": 60000,
                   "final": 1,
               }
-              requests.post(BASE_URL, params=params_end, timeout=10)
-              print(f"{i+1}/20: просмотр завершён")
+              r = requests.post(BASE_URL, params=params_end, headers=headers, timeout=10)
+              print(f"{i+1}/20: play_end → {r.status_code}\n")
 
           print("Готово!")
           EOF
