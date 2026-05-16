@@ -1,25 +1,67 @@
-name: Free VPS
+name: Run Bot Directly
 
 on:
   workflow_dispatch:
 
 jobs:
-  vps:
+  bot:
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    timeout-minutes: 60
     
     steps:
-      - name: Install tmate
+      - name: Install Python
         run: |
-          sudo apt-get update
-          sudo apt-get install -y tmate
-          
-      - name: Start SSH 
+          sudo apt update
+          sudo apt install python3 python3-pip -y
+          pip3 install requests
+      
+      - name: Run Rutube Bot
         run: |
-          echo "=== ПОДКЛЮЧАЙСЯ ПО SSH ==="
-          tmate -S /tmp/tmate.sock new-session -d
-          tmate -S /tmp/tmate.sock wait tmate-ready
-          echo "Команда для подключения:"
-          tmate -S /tmp/tmate.sock display -p '#{tmate_ssh}'
-          echo "============================"
-          sleep 6h
+          python3 << 'EOF'
+import requests
+import time
+import uuid
+import random
+
+VIDEO_ID = "cf89b1de7a3db4d79069629e96116ebb"
+VIEWS = 20
+
+for i in range(VIEWS):
+    cid = str(random.randint(1000000000000, 9999999999999))
+    
+    params = {
+        "event_name": "play_start",
+        "event_action": "PL",
+        "cid": cid,
+        "session_id": f"{cid}_{int(time.time()*1000)}",
+        "user_id": random.randint(10000000, 99999999),
+        "event_timestamp": int(time.time()*1000),
+        "event_timezone": 3,
+        "page_url": f"https://rutube.ru/video/{VIDEO_ID}/",
+        "touch_point": "web",
+        "player_view_id": uuid.uuid4().hex,
+        "player_name": "raichu",
+        "uuid": uuid.uuid4().hex,
+        "host": "https://rutube.ru",
+        "content_id": VIDEO_ID,
+        "player_version": "2.110.0-wdp",
+        "range_start": 0,
+        "range_end": 60000,
+        "final": 1,
+        "video_watchtime": 60,
+        "player_volume": 0,
+        "player_speed": 1,
+    }
+    
+    try:
+        r = requests.get("https://goya.rutube.ru/v2/online", params=params, timeout=15)
+        print(f"Просмотр {i+1}/{VIEWS} → {r.status_code}")
+    except Exception as e:
+        print(f"Просмотр {i+1}/{VIEWS} → Ошибка: {e}")
+    
+    if i < VIEWS - 1:
+        time.sleep(random.randint(30, 60))
+
+print(f"\n✅ Отправлено {VIEWS} просмотров с IP GitHub Actions")
+print("⏳ Проверь счётчик видео через 15-30 минут")
+EOF
