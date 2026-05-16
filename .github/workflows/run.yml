@@ -1,0 +1,7 @@
+name: Run
+on: workflow_dispatch
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - run: python3 -c "import requests, time, uuid, random; VIDEO_ID='cf89b1de7a3db4d79069629e96116ebb'; [print(f'{i+1}/20: {requests.get(\"https://goya.rutube.ru/v2/online\", params={\"event_name\":\"play_start\",\"cid\":str(random.randint(10**12,10**13-1)),\"content_id\":VIDEO_ID}).status_code}') or time.sleep(30) for i in range(20)]"
