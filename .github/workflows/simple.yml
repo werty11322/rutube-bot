@@ -17,7 +17,7 @@ jobs:
           # URL эндпоинта, который вы нашли
           BASE_URL = f"https://goya.rutube.ru/v2/online/{VIDEO_ID}/"
 
-          for i in range(20):
+          for i in range(3):
               # Генерируем уникальные ID для сессии (как в вашем примере)
               cid = str(random.randint(10**12, 10**13-1))
               session_id = f"{cid}_{int(time.time()*1000)}"
