@@ -13,7 +13,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install python3 python3-pip -y
-          pip3 install requests
+          pip3 install requests --break-system-packages || pip3 install requests
       
       - name: Run Rutube Bot
         run: |
@@ -60,8 +60,7 @@ for i in range(VIEWS):
         print(f"Просмотр {i+1}/{VIEWS} → Ошибка: {e}")
     
     if i < VIEWS - 1:
-        time.sleep(random.randint(30, 60))
+        time.sleep(30)
 
-print(f"\n✅ Отправлено {VIEWS} просмотров с IP GitHub Actions")
-print("⏳ Проверь счётчик видео через 15-30 минут")
+print(f"\n✅ Отправлено {VIEWS} просмотров")
 EOF
