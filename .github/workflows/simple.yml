@@ -13,73 +13,55 @@ jobs:
           import time
           import random
 
-          VIDEO_ID = "d628b4180db2b4bb94dd609873f92ce8"
-          # URL эндпоинта, который вы нашли
+          VIDEO_ID = "6cfdb12ee510423801689f51ff73e8a3"
           BASE_URL = f"https://goya.rutube.ru/v2/online/{VIDEO_ID}/"
 
-          for i in range(5):
-              # Генерируем уникальные ID для сессии (как в вашем примере)
+          for i in range(3):
               cid = str(random.randint(10**12, 10**13-1))
               session_id = f"{cid}_{int(time.time()*1000)}"
               user_id = random.randint(10000000, 99999999)
               player_view_id = random.randint(1000000000, 9999999999)
+              start_time = int(time.time()*1000)
 
-              # Параметры запроса, скопированные из вашего примера
-              params = {
-                  "event_name": "heartbeat",
+              # 1. play_start
+              params_start = {
+                  "event_name": "play_start",
+                  "cid": cid,
+                  "session_id": session_id,
+                  "user_id": user_id,
+                  "event_timestamp": start_time,
+                  "page_url": f"https://rutube.ru/video/{VIDEO_ID}/",
+              }
+              requests.post(BASE_URL, params=params_start, timeout=10)
+              
+              # 2. Несколько heartbeat
+              for step in range(6):  # 6 пульсов = ~3 минуты
+                  time.sleep(30)
+                  params_heart = {
+                      "event_name": "heartbeat",
+                      "cid": cid,
+                      "session_id": session_id,
+                      "user_id": user_id,
+                      "event_timestamp": int(time.time()*1000),
+                      "range_start": step * 30000,
+                      "range_end": (step + 1) * 30000,
+                      "video_watchtime": (step + 1) * 30,
+                  }
+                  requests.post(BASE_URL, params=params_heart, timeout=10)
+                  print(f"{i+1}/20: пульс {step+1}/6")
+
+              # 3. play_end
+              params_end = {
+                  "event_name": "play_end",
                   "cid": cid,
                   "session_id": session_id,
                   "user_id": user_id,
                   "event_timestamp": int(time.time()*1000),
-                  "event_timezone": 3,
-                  "page_url": f"https://rutube.ru/video/{VIDEO_ID}/",
-                  "event_action": "PL,STP",
-                  "range_start": "57185,61653",
-                  "range_end": "61653,61653",
-                  "player_volume": 0,
-                  "player_speed": 1,
-                  "player_quality": "480p",
-                  "player_subs": 0,
-                  "content_playlist_id": "",
-                  "player_autoplay": 0,
-                  "touch_point": "web",
-                  "video_watchtime": 14,
-                  "player_view_id": player_view_id,
-                  "final": 0,
-                  "player_screen_size": "S",
-                  "device_orientation": "V",
-                  "player_name": "raichu",
-                  "uuid": "227e26a8-1afa-4223-9651-ce3fa4b1dd04",
-                  "host": "https://rutube.ru",
-                  "cvid": f"{cid}_{int(time.time()*1000)}_0",
-                  "event_ancestors": "",
-                  "player_version": "2.110.0-wdp",
-                  "background_player": 0,
-                  "rightholder_id": "",
-                  "user_subscription_id": "na",
-                  "safe_mode": 0,
-                  "video_track_id": "351489612",
-                  "pageload_id": "6",
-                  "dvt": "{{dvt}}",
+                  "range_end": 180000,
+                  "final": 1,
               }
-
-              # Заголовки из вашего примера
-              headers = {
-                  "content-type": "application/json;charset=utf-8",
-                  "sec-ch-ua": '"Chromium";v="146", "Not-A.Brand";v="24", "Google Chrome";v="146"',
-                  "sec-ch-ua-mobile": "?0",
-                  "sec-ch-ua-platform": '"Windows"',
-                  "Referer": "https://rutube.ru/",
-              }
-
-              try:
-                  # Отправляем POST-запрос
-                  r = requests.post(BASE_URL, params=params, headers=headers, timeout=10)
-                  print(f"{i+1}/20: {r.status_code}")
-              except Exception as e:
-                  print(f"{i+1}/20: Ошибка - {e}")
-
-              time.sleep(30)
+              requests.post(BASE_URL, params=params_end, timeout=10)
+              print(f"{i+1}/20: просмотр завершён")
 
           print("Готово!")
           EOF
