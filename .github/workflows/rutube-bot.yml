@@ -1,20 +1,25 @@
-name: Scan proxies
+name: Free VPS
 
 on:
   workflow_dispatch:
 
 jobs:
-  scan:
+  vps:
     runs-on: ubuntu-latest
+    timeout-minutes: 360
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-      - name: Install dependencies
+      - name: Install tmate
         run: |
-          pip install requests PySocks
-      - name: Run scan
-        run: python scan_proxies.py
+          sudo apt-get update
+          sudo apt-get install -y tmate
+          
+      - name: Start SSH
+        run: |
+          echo "=== ПОДКЛЮЧАЙСЯ ПО SSH ==="
+          tmate -S /tmp/tmate.sock new-session -d
+          tmate -S /tmp/tmate.sock wait tmate-ready
+          echo "Команда для подключения:"
+          tmate -S /tmp/tmate.sock display -p '#{tmate_ssh}'
+          echo "============================"
+          sleep 6h
